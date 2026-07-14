@@ -1,2 +1,5 @@
 #cloud-config
 timezone: Europe/Stockholm
+
+runcmd:
+  - passwd --expire debadmin
