@@ -29,7 +29,16 @@ write_files:
       apt-get update
       apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+      # debadmin ska kunna köra docker utan sudo
       usermod -aG docker debadmin
+
+      # Skapa dedikerad användare "docker" (engångslösenord, tvingas bytas vid
+      # första inloggning, medlem i docker-gruppen - ingen sudo)
+      id -u docker >/dev/null 2>&1 || useradd -m -s /bin/bash docker
+      echo "docker:installtemp" | chpasswd
+      passwd --expire docker
+      usermod -aG docker docker
+
       systemctl enable --now docker
 
 runcmd:
