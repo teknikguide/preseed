@@ -33,11 +33,14 @@ write_files:
       usermod -aG docker debadmin
 
       # Skapa dedikerad användare "docker" (engångslösenord, tvingas bytas vid
-      # första inloggning, medlem i docker-gruppen - ingen sudo)
-      id -u docker >/dev/null 2>&1 || useradd -m -s /bin/bash docker
+      # första inloggning, medlem i docker-gruppen - ingen sudo).
+      # -g docker sätter docker-gruppen (skapad av docker-ce ovan) som
+      # primärgrupp direkt - annars försöker useradd skapa en NY grupp med
+      # samma namn som användaren och krockar med den redan existerande
+      # docker-gruppen.
+      id -u docker >/dev/null 2>&1 || useradd -m -s /bin/bash -g docker docker
       echo "docker:installtemp" | chpasswd
       passwd --expire docker
-      usermod -aG docker docker
 
       systemctl enable --now docker
 
