@@ -2,7 +2,7 @@
 
 ## Inloggning på nyinstallerad maskin
 
-- Användare: `debadmin`
+- Användare: `debadmin` & `docker`
 - Engångslösenord: `installtemp` – tvingas bytas vid första inloggning
 - Root är avstängt, använd `sudo`
 - Hostname blir `DEB-yymmdd-xxxx` (genereras automatiskt)
