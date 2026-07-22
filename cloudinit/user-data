@@ -43,7 +43,40 @@ write_files:
       passwd --expire docker
 
       systemctl enable --now docker
+- path: /root/update-login-banner.sh
+    permissions: '0700'
+    content: |
+      #!/bin/sh
+
+      cat > /etc/issue <<EOF
+==================================================
+ Debian Server Installation Complete
+==================================================
+
+Hostname: $(hostname)
+IP address (DHCP): $(hostname -I | awk '{print $1}')
+
+Available users:
+
+  debadmin
+    - Member of the sudo group
+    - Management and administration account
+
+  docker
+    - Member of the docker group
+    - Docker and container account
+
+Initial password for both users: installtemp
+Password change is required at first login.
+
+==================================================
+
+EOF
+
+      systemctl restart getty@tty1.service || true
 
 runcmd:
-  - passwd --expire debadmin
   - /root/install-docker.sh
+  - passwd --expire debadmin
+  - /root/update-login-banner.sh
+  - touch /root/cloud-init-complete
