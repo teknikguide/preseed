@@ -48,35 +48,42 @@ write_files:
     content: |
       #!/bin/sh
 
-      cat > /etc/issue <<EOF
-==================================================
- Debian Server Installation Complete
-==================================================
+      HOSTNAME="$(hostname)"
+      IP_ADDRESS="$(hostname -I 2>/dev/null | awk '{print $1}')"
 
-Hostname: $(hostname)
-IP address (DHCP): $(hostname -I | awk '{print $1}')
-
-Available users:
-
-  debadmin
-    - Member of the sudo group
-    - Management and administration account
-
-  docker
-    - Member of the docker group
-    - Docker and container account
-
-Initial password for both users: installtemp
-Password change is required at first login.
-
-==================================================
-
-EOF
+      {
+        echo "=================================================="
+        echo " Debian Server Installation Complete"
+        echo "=================================================="
+        echo
+        echo "Hostname: ${HOSTNAME}"
+        echo "IP address (DHCP): ${IP_ADDRESS:-Not assigned}"
+        echo
+        echo "Available users:"
+        echo
+        echo "  debadmin"
+        echo "    - Member of the sudo group"
+        echo "    - Management and administration account"
+        echo
+        echo "  docker"
+        echo "    - Member of the docker group"
+        echo "    - Docker and container account"
+        echo
+        echo "Initial password for both users: installtemp"
+        echo "Password change is required at first login."
+        echo
+        echo "=================================================="
+        echo
+      } > /etc/issue
 
       systemctl restart getty@tty1.service || true
-
 runcmd:
-  - /root/install-docker.sh
   - passwd --expire debadmin
+  - /root/install-docker.sh
+  - /root/update-login-banner.sh
+  - touch /root/cloud-init-complete
+runcmd:
+  - passwd --expire debadmin
+  - /root/install-docker.sh
   - /root/update-login-banner.sh
   - touch /root/cloud-init-complete
